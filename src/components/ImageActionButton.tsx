@@ -18,7 +18,7 @@ const ImageActionButton: React.FC<IImageActionButton> = ({
   return (
     <TouchableOpacity
       onPress={cameraActionFunction}
-      className={`flex items-center rounded p-4 border-2 ${bgColor}`}
+      className={`flex items-center rounded p-4 rounded-lg ${bgColor}`}
     >
       <Text className="text-lg">{buttonLabel}</Text>
       <Ionicons name={iconName} size={32} />
