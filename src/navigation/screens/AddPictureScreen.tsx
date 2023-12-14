@@ -1,37 +1,37 @@
 import { useState, useEffect, useRef } from "react";
-import { Image, View, Text, TouchableOpacity, TextInput } from "react-native";
+import {
+  Image,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, CameraType } from "expo-camera";
 import ImageActionButton from "../../components/ImageActionButton";
 import React from "react";
 import { firebase } from "../../../fbconfig";
 import * as FileSystem from "expo-file-system";
-import { useHeaderHeight } from "@react-navigation/elements";
+import ButtonComponent from "../../components/ButtonComponent";
 
 interface IAddPictureScreen {
   navigation: any;
 }
 
 const AddPictureScreen: React.FC<IAddPictureScreen> = ({ navigation }) => {
-  const headerHeight = useHeaderHeight();
-
-  const [image, setImage] = useState(
-    "https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-  );
+  const [image, setImage] = useState("");
 
   const [uploading, setUploading] = useState(false);
-  const [cameraPerm, setCameraPerm] = useState();
+
   const [showCamera, setShowCamera] = useState(false);
   const [imageDescr, setImageDescr] = useState("");
-  const [type, setType] = useState(CameraType.back);
+  //const [type, setType] = useState(CameraType.back);
+
+  const camType = CameraType.back;
 
   const cameraRef = useRef<Camera | null>();
-
-  useEffect(() => {
-    (async () => {
-      const cameraPermission = await Camera.requestCameraPermissionsAsync();
-    })();
-  }, []);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -94,10 +94,12 @@ const AddPictureScreen: React.FC<IAddPictureScreen> = ({ navigation }) => {
       const imgURL = await ref.getDownloadURL();
       console.log(imgURL);
 
-      submitPost(imgURL);
-      setUploading(false);
-      alert("Photo has been successfully uploaded");
-      setImage("");
+      if (image != "") {
+        submitPost(imgURL);
+        setUploading(false);
+        alert("Photo has been successfully uploaded");
+        setImage("");
+      }
     } catch (error) {
       console.error(error);
       setUploading(false);
@@ -115,13 +117,15 @@ const AddPictureScreen: React.FC<IAddPictureScreen> = ({ navigation }) => {
     <>
       {showCamera && (
         <View className="flex-1 justify-center">
-          <Camera type={type} ref={cameraRef} className="flex-1">
-            <View className="flex-1 flex-row m2">
+          <Camera type={camType} ref={cameraRef} className="flex-1">
+            <View className="flex-1 flex-row">
               <TouchableOpacity
-                className="flex-1 justify-center items-center"
+                className="flex-1 self-end justify-center items-center"
                 onPress={takePic}
               >
-                <Text className="text-white bg-white rounded">T</Text>
+                <Text className="m-8 bg-white font-bold rounded-full py-2 px-4">
+                  Take Picture
+                </Text>
               </TouchableOpacity>
             </View>
           </Camera>
@@ -130,12 +134,12 @@ const AddPictureScreen: React.FC<IAddPictureScreen> = ({ navigation }) => {
 
       <View className="flex flex-row justify-center align-center">
         <View className="flex flex-row space-x-4 mt-8">
-          <View className="bg-cyan-400">
+          <View>
             <ImageActionButton
               cameraActionFunction={pickImage}
               iconName="image-outline"
               buttonLabel="Pick from Gallery"
-              bgColor={"bg-cyan-400"}
+              styling="bg-cyan-400"
             />
           </View>
 
@@ -144,7 +148,7 @@ const AddPictureScreen: React.FC<IAddPictureScreen> = ({ navigation }) => {
               cameraActionFunction={openCamera}
               iconName="camera-outline"
               buttonLabel="Take Photo"
-              bgColor={"bg-green-400"}
+              styling="bg-green-400"
             />
           </View>
         </View>
@@ -154,30 +158,33 @@ const AddPictureScreen: React.FC<IAddPictureScreen> = ({ navigation }) => {
         <View className="mt-8 flex items-center">
           <Image
             source={{ uri: image }}
-            style={{ width: 300, height: 300 }}
+            style={{ width: 350, height: 350 }}
             className="rounded"
           />
         </View>
       )}
 
-      <View className="mt-4 items-center">
-        <TextInput
-          className="border-2 bg-white rounded-md w-80"
-          placeholder="Image description"
-          onChangeText={(val) => setImageDescr(val)}
-        />
-      </View>
-
-      <View className="items-center">
-        <TouchableOpacity
-          onPress={uploadImage}
-          className="mt-4 items-center border-2 bg-blue-500 p-4 w-[150px] rounded"
-        >
-          <Text className="text-white">Upload Image</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text>{imageDescr}</Text>
+      {!uploading ? (
+        <View>
+          <View className="mt-4 items-center w-100">
+            <TextInput
+              className="border-2 bg-white rounded-md w-80 p-2"
+              placeholder="Image description"
+              onChangeText={(val) => setImageDescr(val)}
+            />
+          </View>
+          <View className="items-center">
+            <ButtonComponent
+              buttonLabel="Upload Image"
+              buttonAction={uploadImage}
+              styling="mt-4 items-center bg-blue-500 p-4 w-[150px] rounded-full"
+              textStyling="text-white font-bold text-lg"
+            />
+          </View>
+        </View>
+      ) : (
+        <ActivityIndicator size="large" color="#00ff00" />
+      )}
     </>
   );
 };

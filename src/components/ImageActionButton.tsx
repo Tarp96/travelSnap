@@ -4,21 +4,21 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface IImageActionButton {
   cameraActionFunction: () => void;
-  iconName: String;
+  iconName: string;
   buttonLabel: String;
-  bgColor: String;
+  styling: String;
 }
 
 const ImageActionButton: React.FC<IImageActionButton> = ({
   cameraActionFunction,
   iconName,
   buttonLabel,
-  bgColor,
+  styling,
 }) => {
   return (
     <TouchableOpacity
       onPress={cameraActionFunction}
-      className={`flex items-center rounded p-4 rounded-lg ${bgColor}`}
+      className={`flex items-center rounded p-4 rounded-lg ${styling}`}
     >
       <Text className="text-lg">{buttonLabel}</Text>
       <Ionicons name={iconName} size={32} />
